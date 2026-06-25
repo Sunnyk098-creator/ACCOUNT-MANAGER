@@ -4,13 +4,13 @@ import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get
 
 // FIREBASE CONFIG
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBRnRrySYeKG7S2lA4R7_bnu4B-tiKy3qg",
+  authDomain: "account-manager-7dcb0.firebaseapp.com",
+  databaseURL: "https://account-manager-7dcb0-default-rtdb.firebaseio.com",
+  projectId: "account-manager-7dcb0",
+  storageBucket: "account-manager-7dcb0.firebasestorage.app",
+  messagingSenderId: "756558214004",
+  appId: "1:756558214004:web:6cbeb8a9f89891503f7221"
 };
 
 const app = initializeApp(firebaseConfig);
