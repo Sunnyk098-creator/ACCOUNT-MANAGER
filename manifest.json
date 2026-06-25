@@ -1,0 +1,21 @@
+{
+  "name": "Account Manager",
+  "short_name": "AccMgr",
+  "description": "Fast and Secure Payment Manager",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#FFD700",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRDcwMCI+PHBhdGggZD0iTTIxIDE4djFjMCAxLjEtLjkgMi0yIDJIMTV2LTJoNW0wLTE0aC01VjNjMCAxLjEtLjkgMi0yIDJoLTE0djE0aDE0djJoNWMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yem0tNyAxNEgzVjVoMTF2MTR6bTYtNnYyaC01di0yaDV6bTAtNGgtdXYyaDV2LTJ6Ii8+PC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGRDcwMCI+PHBhdGggZD0iTTIxIDE4djFjMCAxLjEtLjkgMi0yIDJIMTV2LTJoNW0wLTE0aC01VjNjMCAxLjEtLjkgMi0yIDJoLTE0djE0aDE0djJoNWMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yem0tNyAxNEgzVjVoMTF2MTR6bTYtNnYyaC01di0yaDV6bTAtNGgtdXYyaDV2LTJ6Ii8+PC9zdmc+",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
