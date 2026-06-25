@@ -2,15 +2,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-// FIREBASE CONFIG
+// REAL FIREBASE CONFIGURATION
 const firebaseConfig = {
-  apiKey: "AIzaSyBRnRrySYeKG7S2lA4R7_bnu4B-tiKy3qg",
-  authDomain: "account-manager-7dcb0.firebaseapp.com",
-  databaseURL: "https://account-manager-7dcb0-default-rtdb.firebaseio.com",
-  projectId: "account-manager-7dcb0",
-  storageBucket: "account-manager-7dcb0.firebasestorage.app",
-  messagingSenderId: "756558214004",
-  appId: "1:756558214004:web:6cbeb8a9f89891503f7221"
+  apiKey: "AIzaSyBRnRrySYeKG7S2lA4R7_bnu4B-tiKy3qg",
+  authDomain: "account-manager-7dcb0.firebaseapp.com",
+  databaseURL: "https://account-manager-7dcb0-default-rtdb.firebaseio.com",
+  projectId: "account-manager-7dcb0",
+  storageBucket: "account-manager-7dcb0.firebasestorage.app",
+  messagingSenderId: "756558214004",
+  appId: "1:756558214004:web:6cbeb8a9f89891503f7221"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -264,7 +264,7 @@ function processTransaction() {
     el('processing-state').classList.remove('hidden');
     el('result-state').classList.add('hidden');
     
-    // Simulate API Call
+    // Simulate API Call Processing Delay
     setTimeout(() => {
         const isSuccess = Math.random() > 0.2; // 80% success rate mock
         const txId = 'TXN' + Date.now();
@@ -295,9 +295,6 @@ function showResult(tx, isSuccess) {
     icon.className = `material-icons-round status-icon ${isSuccess ? 'status-success-anim' : 'status-fail-anim'}`;
     title.innerText = isSuccess ? 'Payment Successful' : 'Payment Failed';
     title.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
-    
-    // Play sound snippet mock
-    // const audio = new Audio(isSuccess ? 'success.mp3' : 'fail.mp3'); audio.play().catch(e=>{});
 
     el('result-receipt').innerHTML = `
         <div class="receipt-row"><span>TXN ID:</span> <strong>${tx.transactionId}</strong></div>
