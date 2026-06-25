@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Account Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FFD700">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body class="dark-mode">
+
+    <div id="loader" class="screen flex-center glass active">
+        <div class="loader-content">
+            <span class="material-icons-round logo-icon">account_balance_wallet</span>
+            <h2>Welcome To Account Manager</h2>
+            <p>Fast • Secure Payment</p>
+        </div>
+    </div>
+
+    <div id="auth-container" class="screen hidden">
+        <div class="glass-card auth-card">
+            <div id="login-view">
+                <span class="material-icons-round auth-icon">lock</span>
+                <h2>Login</h2>
+                <form id="login-form">
+                    <div class="input-group">
+                        <span class="material-icons-round">email</span>
+                        <input type="email" id="login-email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="material-icons-round">vpn_key</span>
+                        <input type="password" id="login-password" placeholder="Password" required>
+                        <span class="material-icons-round toggle-password" onclick="togglePassword('login-password')">visibility</span>
+                    </div>
+                    <button type="submit" class="btn-primary ripple">Login</button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" onclick="switchAuth('signup')">Create Account</a>
+                    <a href="#">Forgot Password?</a>
+                </div>
+            </div>
+
+            <div id="signup-view" class="hidden">
+                <span class="material-icons-round auth-icon">person_add</span>
+                <h2>Create Account</h2>
+                <form id="signup-form">
+                    <div class="input-group">
+                        <span class="material-icons-round">person</span>
+                        <input type="text" id="signup-name" placeholder="Full Name" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="material-icons-round">email</span>
+                        <input type="email" id="signup-email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <span class="material-icons-round">vpn_key</span>
+                        <input type="password" id="signup-password" placeholder="Password" required>
+                        <span class="material-icons-round toggle-password" onclick="togglePassword('signup-password')">visibility</span>
+                    </div>
+                    <button type="submit" class="btn-primary ripple">Create Account</button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" onclick="switchAuth('login')">Back to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="screen hidden">
+        <nav class="navbar glass">
+            <div class="nav-brand">
+                <span class="material-icons-round">account_balance_wallet</span>
+                <span>Account Manager</span>
+            </div>
+            <button id="profile-btn" class="icon-btn ripple"><span class="material-icons-round">account_circle</span></button>
+        </nav>
+
+        <main id="main-content">
+            <section id="dashboard-view" class="view active">
+                <div class="summary-cards">
+                    <div class="glass-card gradient-card">
+                        <h3>Total Amount Sent</h3>
+                        <h2 class="counter" id="total-sent">0.00</h2>
+                    </div>
+                    <div class="glass-card gradient-card">
+                        <h3>Connected Gateways</h3>
+                        <h2 class="counter" id="total-gateways">0</h2>
+                    </div>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="glass-card menu-item ripple" onclick="navigate('manage-gateways')">
+                        <span class="material-icons-round">settings_input_component</span>
+                        <span>Manage Gateway</span>
+                    </div>
+                    <div class="glass-card menu-item ripple" onclick="navigate('send-amount')">
+                        <span class="material-icons-round">send</span>
+                        <span>Send Amount</span>
+                    </div>
+                    <div class="glass-card menu-item ripple" onclick="navigate('go-to-gateway')">
+                        <span class="material-icons-round">open_in_new</span>
+                        <span>Go To Gateway</span>
+                    </div>
+                    <div class="glass-card menu-item ripple" onclick="navigate('history')">
+                        <span class="material-icons-round">history</span>
+                        <span>History</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="manage-gateways-view" class="view hidden">
+                <div class="view-header">
+                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <h2>Manage Gateways</h2>
+                    <button class="icon-btn ripple" onclick="navigate('add-gateway')"><span class="material-icons-round">add</span></button>
+                </div>
+                <div id="gateway-list" class="list-container"></div>
+            </section>
+
+            <section id="add-gateway-view" class="view hidden">
+                <div class="view-header">
+                    <button class="icon-btn ripple" onclick="navigate('manage-gateways')"><span class="material-icons-round">arrow_back</span></button>
+                    <h2>Add Gateway</h2>
+                </div>
+                <div class="glass-card form-card">
+                    <form id="add-gateway-form">
+                        <div class="input-group">
+                            <span class="material-icons-round">badge</span>
+                            <input type="text" id="gw-account-name" placeholder="Account Name" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="material-icons-round">link</span>
+                            <input type="url" id="gw-api-url" placeholder="API URL" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="material-icons-round">auto_awesome</span>
+                            <input type="text" id="gw-detected-name" placeholder="Auto Detected Name" readonly>
+                        </div>
+                        <button type="submit" class="btn-primary ripple">Save Gateway</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="send-amount-view" class="view hidden">
+                <div class="view-header">
+                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <h2>Send Amount</h2>
+                </div>
+                <div class="glass-card form-card text-center">
+                    <span class="material-icons-round large-icon">send_to_mobile</span>
+                    <form id="send-form">
+                        <div class="input-group">
+                            <span class="material-icons-round">account_balance</span>
+                            <select id="send-gateway" required></select>
+                        </div>
+                        <div class="input-group">
+                            <span class="material-icons-round">phone_iphone</span>
+                            <input type="text" id="send-receiver" placeholder="Receiver Number (10 digits)" pattern="\d{10}" maxlength="10" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="material-icons-round">attach_money</span>
+                            <input type="number" id="send-amount" placeholder="Amount" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <span class="material-icons-round">comment</span>
+                            <input type="text" id="send-comment" placeholder="Comment (Optional)" value="Payment">
+                        </div>
+                        <button type="submit" class="btn-primary ripple">Continue</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="confirm-view" class="view hidden">
+                <div class="view-header">
+                    <button class="icon-btn ripple" onclick="navigate('send-amount')"><span class="material-icons-round">arrow_back</span></button>
+                    <h2>Confirm Transfer</h2>
+                </div>
+                <div class="glass-card receipt-card">
+                    <div class="receipt-row"><span>Gateway:</span> <strong id="conf-gateway"></strong></div>
+                    <div class="receipt-row"><span>Account:</span> <strong id="conf-account"></strong></div>
+                    <div class="receipt-row"><span>Receiver:</span> <strong id="conf-receiver"></strong></div>
+                    <div class="receipt-row"><span>Amount:</span> <strong class="highlight" id="conf-amount"></strong></div>
+                    <div class="receipt-row"><span>Comment:</span> <strong id="conf-comment"></strong></div>
+                </div>
+                <div class="slider-container" id="slide-to-confirm">
+                    <div class="slider-track">
+                        <span class="slider-text">Slide to Confirm</span>
+                    </div>
+                    <div class="slider-thumb material-icons-round">arrow_forward</div>
+                </div>
+            </section>
+
+            <section id="status-view" class="view hidden">
+                <div class="status-content text-center glass-card">
+                    <div id="processing-state">
+                        <div class="circular-loader"></div>
+                        <h3>Processing Payment</h3>
+                    </div>
+                    <div id="result-state" class="hidden">
+                        <span class="material-icons-round status-icon" id="result-icon">check_circle</span>
+                        <h2 id="result-title">Success</h2>
+                        <div class="receipt-card text-left" id="result-receipt"></div>
+                        <button class="btn-primary ripple mt-20" onclick="navigate('dashboard')">Done</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="go-to-gateway-view" class="view hidden">
+                 <div class="view-header">
+                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <h2>Go To Gateway</h2>
+                </div>
+                <div id="go-gateway-list" class="list-container"></div>
+            </section>
+
+            <section id="history-view" class="view hidden">
+                <div class="view-header">
+                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <h2>Transaction History</h2>
+                </div>
+                <div id="history-list" class="list-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="popup" class="popup-overlay hidden">
+        <div class="glass-card popup-content text-center">
+            <span class="material-icons-round large-icon text-primary">check_circle</span>
+            <h3 id="popup-title">Success</h3>
+            <p id="popup-msg"></p>
+            <button class="btn-primary ripple" onclick="closePopup()">Continue</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
