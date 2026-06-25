@@ -4,37 +4,190 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Account Manager</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#FFD700">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FFD700;
+            --primary-dark: #FDB931;
+            --bg: #121212;
+            --surface: rgba(30, 30, 30, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.1);
+            --text: #FFFFFF;
+            --text-sec: #B0B0B0;
+            --success: #00C853;
+            --danger: #FF3D00;
+            --radius: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        .hidden { display: none !important; }
+        .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .mt-20 { margin-top: 20px; }
+
+        /* Glassmorphism Refined */
+        .glass { background: rgba(20, 20, 20, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .glass-card {
+            background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--surface-border); border-radius: var(--radius); padding: 32px 24px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Screens & Views */
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; overflow-y: auto; }
+        #app-container { z-index: 1; display: flex; flex-direction: column; }
+        .view { padding: 20px; padding-top: 90px; animation: fadeIn 0.4s ease; display: none; }
+        .view.active { display: block; }
+
+        /* Loader */
+        #loader { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); z-index: 100; color: #000; }
+        .logo-icon { font-size: 80px; animation: scaleUp 1s infinite alternate; }
+
+        /* Centered Auth Container */
+        #auth-container { display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { width: 100%; max-width: 400px; margin: auto; }
+        .auth-icon { font-size: 40px; color: var(--text); margin-bottom: 5px; }
+        .auth-card h2 { margin-bottom: 25px; font-weight: 600; font-size: 1.8rem; }
+
+        /* Navbar */
+        .navbar {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 50; border-bottom: 1px solid var(--surface-border);
+        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.2rem; color: var(--primary); }
+
+        /* Buttons & Inputs */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #121212; 
+            border: none; padding: 15px; width: 100%; border-radius: 14px; font-size: 1.05rem; font-weight: 600; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2); transition: all 0.2s ease;
+        }
+        .btn-primary:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2); }
+        .icon-btn { background: transparent; border: none; color: var(--text); cursor: pointer; padding: 8px; border-radius: 50%; }
+
+        .input-group {
+            display: flex; align-items: center; background: rgba(0, 0, 0, 0.4); border-radius: 14px; 
+            padding: 12px 18px; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: var(--primary); background: rgba(0, 0, 0, 0.6); }
+        .input-group span { color: var(--text-sec); margin-right: 14px; font-size: 22px; }
+        .input-group input, .input-group select {
+            background: transparent; border: none; color: var(--text); flex: 1; font-size: 1rem; outline: none; width: 100%;
+        }
+        .input-group input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+        /* FIX: Chrome Autofill White Background Bug */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #1e1e1e inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .toggle-password { cursor: pointer; margin-right: 0 !important; margin-left: 12px; }
+
+        /* FIX: Auth Links Styling */
+        .auth-links { margin-top: 25px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        .auth-links a { color: var(--primary); text-decoration: none; font-weight: 500; transition: 0.2s; }
+        .auth-links a:hover { opacity: 0.8; }
+
+        /* Dashboard */
+        .summary-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 24px; }
+        .gradient-card { background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(253,185,49,0.05)); border: 1px solid rgba(255,215,0,0.3); padding: 20px; }
+        .gradient-card h3 { font-size: 0.85rem; color: var(--text-sec); margin-bottom: 8px; font-weight: 400; }
+        .gradient-card h2 { color: var(--primary); font-size: 1.6rem; font-weight: 600; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; padding: 25px 10px; transition: 0.3s; }
+        .menu-item span.material-icons-round { font-size: 34px; color: var(--primary); }
+        .menu-item:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        /* Lists */
+        .view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .view-header h2 { font-size: 1.4rem; font-weight: 600; }
+        .list-container { display: flex; flex-direction: column; gap: 15px; }
+        .list-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; }
+        .list-card-left { display: flex; align-items: center; gap: 15px; }
+        .list-card .material-icons-round { background: rgba(255,215,0,0.1); color: var(--primary); padding: 12px; border-radius: 12px; }
+        .list-details h4 { margin-bottom: 4px; font-size: 1rem; font-weight: 500; }
+        .list-details p { font-size: 0.85rem; color: var(--text-sec); }
+        .status-success { color: var(--success); }
+        .status-failed { color: var(--danger); }
+
+        /* Slider */
+        .slider-container {
+            position: relative; height: 60px; background: rgba(0,0,0,0.4); border-radius: 30px; 
+            margin-top: 30px; overflow: hidden; border: 1px solid var(--surface-border);
+        }
+        .slider-text { position: absolute; width: 100%; text-align: center; line-height: 60px; color: var(--text-sec); font-weight: 500; pointer-events: none; }
+        .slider-thumb {
+            position: absolute; top: 4px; left: 4px; width: 52px; height: 52px; background: var(--primary); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; 
+            cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 2; transition: background 0.3s;
+        }
+
+        /* Status & Loaders */
+        .circular-loader {
+            border: 4px solid var(--surface-border); border-top: 4px solid var(--primary); border-radius: 50%; 
+            width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 20px auto;
+        }
+        .status-icon { font-size: 80px; margin-bottom: 20px; }
+        .status-success-anim { color: var(--success); animation: scaleUp 0.5s ease; }
+        .status-fail-anim { color: var(--danger); animation: shake 0.5s ease; }
+        .receipt-card { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-top: 20px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; }
+        .receipt-row span { color: var(--text-sec); }
+        .highlight { color: var(--primary); font-size: 1.1rem; font-weight: 600; }
+
+        /* Popups */
+        .popup-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; }
+        .popup-content { width: 85%; max-width: 320px; }
+        .large-icon { font-size: 64px; margin-bottom: 15px; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleUp { from { transform: scale(0.8); } to { transform: scale(1.1); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+    </style>
 </head>
-<body class="dark-mode">
+<body>
 
     <div id="loader" class="screen flex-center glass active">
-        <div class="loader-content">
+        <div class="loader-content text-center">
             <span class="material-icons-round logo-icon">account_balance_wallet</span>
-            <h2>Welcome To Account Manager</h2>
-            <p>Fast • Secure Payment</p>
+            <h2 style="margin-top: 20px; font-weight: 600;">Account Manager</h2>
+            <p style="font-weight: 300;">Fast • Secure Payment</p>
         </div>
     </div>
 
     <div id="auth-container" class="screen hidden">
         <div class="glass-card auth-card">
             <div id="login-view">
-                <span class="material-icons-round auth-icon">lock</span>
-                <h2>Login</h2>
+                <div class="text-center">
+                    <span class="material-icons-round auth-icon">lock</span>
+                    <h2>Login</h2>
+                </div>
                 <form id="login-form">
                     <div class="input-group">
                         <span class="material-icons-round">email</span>
-                        <input type="email" id="login-email" placeholder="Email" required>
+                        <input type="email" id="login-email" placeholder="Email" required autocomplete="email">
                     </div>
                     <div class="input-group">
                         <span class="material-icons-round">vpn_key</span>
-                        <input type="password" id="login-password" placeholder="Password" required>
+                        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
                         <span class="material-icons-round toggle-password" onclick="togglePassword('login-password')">visibility</span>
                     </div>
-                    <button type="submit" class="btn-primary ripple">Login</button>
+                    <button type="submit" class="btn-primary">Login</button>
                 </form>
                 <div class="auth-links">
                     <a href="#" onclick="switchAuth('signup')">Create Account</a>
@@ -43,23 +196,25 @@
             </div>
 
             <div id="signup-view" class="hidden">
-                <span class="material-icons-round auth-icon">person_add</span>
-                <h2>Create Account</h2>
+                <div class="text-center">
+                    <span class="material-icons-round auth-icon">person_add</span>
+                    <h2>Create Account</h2>
+                </div>
                 <form id="signup-form">
                     <div class="input-group">
                         <span class="material-icons-round">person</span>
-                        <input type="text" id="signup-name" placeholder="Full Name" required>
+                        <input type="text" id="signup-name" placeholder="Full Name" required autocomplete="name">
                     </div>
                     <div class="input-group">
                         <span class="material-icons-round">email</span>
-                        <input type="email" id="signup-email" placeholder="Email" required>
+                        <input type="email" id="signup-email" placeholder="Email" required autocomplete="email">
                     </div>
                     <div class="input-group">
                         <span class="material-icons-round">vpn_key</span>
-                        <input type="password" id="signup-password" placeholder="Password" required>
+                        <input type="password" id="signup-password" placeholder="Password" required autocomplete="new-password">
                         <span class="material-icons-round toggle-password" onclick="togglePassword('signup-password')">visibility</span>
                     </div>
-                    <button type="submit" class="btn-primary ripple">Create Account</button>
+                    <button type="submit" class="btn-primary">Create Account</button>
                 </form>
                 <div class="auth-links">
                     <a href="#" onclick="switchAuth('login')">Back to Login</a>
@@ -74,7 +229,7 @@
                 <span class="material-icons-round">account_balance_wallet</span>
                 <span>Account Manager</span>
             </div>
-            <button id="profile-btn" class="icon-btn ripple"><span class="material-icons-round">account_circle</span></button>
+            <button id="profile-btn" class="icon-btn"><span class="material-icons-round">logout</span></button>
         </nav>
 
         <main id="main-content">
@@ -91,19 +246,19 @@
                 </div>
 
                 <div class="menu-grid">
-                    <div class="glass-card menu-item ripple" onclick="navigate('manage-gateways')">
+                    <div class="glass-card menu-item" onclick="navigate('manage-gateways')">
                         <span class="material-icons-round">settings_input_component</span>
                         <span>Manage Gateway</span>
                     </div>
-                    <div class="glass-card menu-item ripple" onclick="navigate('send-amount')">
+                    <div class="glass-card menu-item" onclick="navigate('send-amount')">
                         <span class="material-icons-round">send</span>
                         <span>Send Amount</span>
                     </div>
-                    <div class="glass-card menu-item ripple" onclick="navigate('go-to-gateway')">
+                    <div class="glass-card menu-item" onclick="navigate('go-to-gateway')">
                         <span class="material-icons-round">open_in_new</span>
                         <span>Go To Gateway</span>
                     </div>
-                    <div class="glass-card menu-item ripple" onclick="navigate('history')">
+                    <div class="glass-card menu-item" onclick="navigate('history')">
                         <span class="material-icons-round">history</span>
                         <span>History</span>
                     </div>
@@ -112,19 +267,20 @@
 
             <section id="manage-gateways-view" class="view hidden">
                 <div class="view-header">
-                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <button class="icon-btn" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
                     <h2>Manage Gateways</h2>
-                    <button class="icon-btn ripple" onclick="navigate('add-gateway')"><span class="material-icons-round">add</span></button>
+                    <button class="icon-btn" onclick="navigate('add-gateway')"><span class="material-icons-round">add</span></button>
                 </div>
                 <div id="gateway-list" class="list-container"></div>
             </section>
 
             <section id="add-gateway-view" class="view hidden">
                 <div class="view-header">
-                    <button class="icon-btn ripple" onclick="navigate('manage-gateways')"><span class="material-icons-round">arrow_back</span></button>
+                    <button class="icon-btn" onclick="navigate('manage-gateways')"><span class="material-icons-round">arrow_back</span></button>
                     <h2>Add Gateway</h2>
+                    <div style="width: 40px;"></div>
                 </div>
-                <div class="glass-card form-card">
+                <div class="glass-card">
                     <form id="add-gateway-form">
                         <div class="input-group">
                             <span class="material-icons-round">badge</span>
@@ -138,18 +294,19 @@
                             <span class="material-icons-round">auto_awesome</span>
                             <input type="text" id="gw-detected-name" placeholder="Auto Detected Name" readonly>
                         </div>
-                        <button type="submit" class="btn-primary ripple">Save Gateway</button>
+                        <button type="submit" class="btn-primary">Save Gateway</button>
                     </form>
                 </div>
             </section>
 
             <section id="send-amount-view" class="view hidden">
                 <div class="view-header">
-                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <button class="icon-btn" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
                     <h2>Send Amount</h2>
+                    <div style="width: 40px;"></div>
                 </div>
-                <div class="glass-card form-card text-center">
-                    <span class="material-icons-round large-icon">send_to_mobile</span>
+                <div class="glass-card text-center">
+                    <span class="material-icons-round text-primary" style="font-size: 50px; margin-bottom: 20px;">send_to_mobile</span>
                     <form id="send-form">
                         <div class="input-group">
                             <span class="material-icons-round">account_balance</span>
@@ -167,15 +324,16 @@
                             <span class="material-icons-round">comment</span>
                             <input type="text" id="send-comment" placeholder="Comment (Optional)" value="Payment">
                         </div>
-                        <button type="submit" class="btn-primary ripple">Continue</button>
+                        <button type="submit" class="btn-primary">Continue</button>
                     </form>
                 </div>
             </section>
 
             <section id="confirm-view" class="view hidden">
                 <div class="view-header">
-                    <button class="icon-btn ripple" onclick="navigate('send-amount')"><span class="material-icons-round">arrow_back</span></button>
+                    <button class="icon-btn" onclick="navigate('send-amount')"><span class="material-icons-round">arrow_back</span></button>
                     <h2>Confirm Transfer</h2>
+                    <div style="width: 40px;"></div>
                 </div>
                 <div class="glass-card receipt-card">
                     <div class="receipt-row"><span>Gateway:</span> <strong id="conf-gateway"></strong></div>
@@ -185,40 +343,40 @@
                     <div class="receipt-row"><span>Comment:</span> <strong id="conf-comment"></strong></div>
                 </div>
                 <div class="slider-container" id="slide-to-confirm">
-                    <div class="slider-track">
-                        <span class="slider-text">Slide to Confirm</span>
-                    </div>
+                    <div class="slider-track"><span class="slider-text">Slide to Confirm</span></div>
                     <div class="slider-thumb material-icons-round">arrow_forward</div>
                 </div>
             </section>
 
             <section id="status-view" class="view hidden">
-                <div class="status-content text-center glass-card">
+                <div class="text-center glass-card" style="margin-top: 40px;">
                     <div id="processing-state">
                         <div class="circular-loader"></div>
-                        <h3>Processing Payment</h3>
+                        <h3>Processing Payment...</h3>
                     </div>
                     <div id="result-state" class="hidden">
                         <span class="material-icons-round status-icon" id="result-icon">check_circle</span>
                         <h2 id="result-title">Success</h2>
                         <div class="receipt-card text-left" id="result-receipt"></div>
-                        <button class="btn-primary ripple mt-20" onclick="navigate('dashboard')">Done</button>
+                        <button class="btn-primary mt-20" onclick="navigate('dashboard')">Done</button>
                     </div>
                 </div>
             </section>
 
             <section id="go-to-gateway-view" class="view hidden">
                  <div class="view-header">
-                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <button class="icon-btn" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
                     <h2>Go To Gateway</h2>
+                    <div style="width: 40px;"></div>
                 </div>
                 <div id="go-gateway-list" class="list-container"></div>
             </section>
 
             <section id="history-view" class="view hidden">
                 <div class="view-header">
-                    <button class="icon-btn ripple" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
+                    <button class="icon-btn" onclick="navigate('dashboard')"><span class="material-icons-round">arrow_back</span></button>
                     <h2>Transaction History</h2>
+                    <div style="width: 40px;"></div>
                 </div>
                 <div id="history-list" class="list-container"></div>
             </section>
@@ -228,12 +386,249 @@
     <div id="popup" class="popup-overlay hidden">
         <div class="glass-card popup-content text-center">
             <span class="material-icons-round large-icon text-primary">check_circle</span>
-            <h3 id="popup-title">Success</h3>
-            <p id="popup-msg"></p>
-            <button class="btn-primary ripple" onclick="closePopup()">Continue</button>
+            <h3 id="popup-title" style="margin-bottom: 10px;">Success</h3>
+            <p id="popup-msg" style="color: var(--text-sec); font-size: 0.9rem;"></p>
+            <button class="btn-primary mt-20" onclick="closePopup()">Continue</button>
         </div>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRnRrySYeKG7S2lA4R7_bnu4B-tiKy3qg",
+            authDomain: "account-manager-7dcb0.firebaseapp.com",
+            databaseURL: "https://account-manager-7dcb0-default-rtdb.firebaseio.com",
+            projectId: "account-manager-7dcb0",
+            storageBucket: "account-manager-7dcb0.firebasestorage.app",
+            messagingSenderId: "756558214004",
+            appId: "1:756558214004:web:6cbeb8a9f89891503f7221"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let gatewaysData = [];
+
+        const el = (id) => document.getElementById(id);
+        const views = document.querySelectorAll('.view');
+        const screens = document.querySelectorAll('.screen');
+
+        window.onload = () => {
+            setTimeout(() => {
+                el('loader').classList.remove('active');
+                el('loader').classList.add('hidden');
+                checkAuth();
+            }, 1200);
+        };
+
+        function checkAuth() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    hideAllScreens();
+                    el('app-container').classList.remove('hidden');
+                    navigate('dashboard');
+                    loadDashboardData();
+                } else {
+                    currentUser = null;
+                    hideAllScreens();
+                    el('auth-container').classList.remove('hidden');
+                }
+            });
+        }
+
+        window.navigate = (viewId) => {
+            views.forEach(v => v.classList.remove('active'));
+            el(`${viewId}-view`).classList.add('active');
+            
+            if (viewId === 'manage-gateways') loadGateways();
+            if (viewId === 'send-amount') populateGatewaysDropdown();
+            if (viewId === 'history') loadHistory();
+            if (viewId === 'go-to-gateway') loadGoToGateways();
+        };
+
+        function hideAllScreens() { screens.forEach(s => s.classList.add('hidden')); }
+
+        window.switchAuth = (type) => {
+            el('login-view').classList.toggle('hidden', type === 'signup');
+            el('signup-view').classList.toggle('hidden', type === 'login');
+        };
+
+        window.togglePassword = (id) => {
+            const input = el(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        };
+
+        el('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            signInWithEmailAndPassword(auth, el('login-email').value, el('login-password').value)
+                .catch(error => alert(error.message));
+        });
+
+        el('signup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = el('signup-name').value;
+            createUserWithEmailAndPassword(auth, el('signup-email').value, el('signup-password').value)
+                .then((creds) => {
+                    set(ref(db, 'users/' + creds.user.uid), {
+                        uid: creds.user.uid, name: name, email: creds.user.email, createdAt: Date.now()
+                    });
+                    showPopup('Account Created', 'Welcome to Account Manager!');
+                }).catch(error => alert(error.message));
+        });
+
+        el('profile-btn').addEventListener('click', () => {
+            if(confirm("Are you sure you want to logout?")) signOut(auth);
+        });
+
+        function animateValue(id, start, end, duration) {
+            const obj = el(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = (progress * (end - start) + start).toFixed(2);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        window.showPopup = (title, msg) => { el('popup-title').innerText = title; el('popup-msg').innerText = msg; el('popup').classList.remove('hidden'); };
+        window.closePopup = () => el('popup').classList.add('hidden');
+
+        function loadDashboardData() {
+            onValue(query(ref(db, 'gateways'), orderByChild('uid'), equalTo(currentUser.uid)), (snapshot) => {
+                gatewaysData = []; snapshot.forEach(child => gatewaysData.push({ id: child.key, ...child.val() }));
+                el('total-gateways').innerText = gatewaysData.length;
+            });
+            onValue(query(ref(db, 'transactions'), orderByChild('uid'), equalTo(currentUser.uid)), (snapshot) => {
+                let totalSent = 0;
+                snapshot.forEach(child => { if(child.val().status === 'Success') totalSent += parseFloat(child.val().amount); });
+                animateValue('total-sent', 0, totalSent, 1000);
+            });
+        }
+
+        el('gw-api-url').addEventListener('input', (e) => {
+            try {
+                let name = new URL(e.target.value).hostname.replace('www.', '').split('.')[0];
+                el('gw-detected-name').value = name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            } catch(e) { el('gw-detected-name').value = ''; }
+        });
+
+        el('add-gateway-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newRef = push(ref(db, 'gateways'));
+            set(newRef, {
+                uid: currentUser.uid, gatewayId: newRef.key, accountName: el('gw-account-name').value,
+                gatewayName: el('gw-detected-name').value || 'Unknown', apiUrl: el('gw-api-url').value, createdAt: Date.now()
+            }).then(() => { e.target.reset(); navigate('manage-gateways'); });
+        });
+
+        function loadGateways() {
+            el('gateway-list').innerHTML = gatewaysData.map(gw => `
+                <div class="glass-card list-card">
+                    <div class="list-card-left"><span class="material-icons-round">api</span>
+                        <div class="list-details"><h4>${gw.accountName}</h4><p>${gw.gatewayName}</p></div>
+                    </div>
+                    <button class="icon-btn" onclick="deleteGateway('${gw.id}')"><span class="material-icons-round text-danger">delete</span></button>
+                </div>
+            `).join('') || '<p class="text-center mt-20" style="color:var(--text-sec)">No Gateways Found</p>';
+        }
+
+        window.deleteGateway = (id) => { if(confirm('Delete this gateway?')) remove(ref(db, 'gateways/' + id)); };
+
+        function loadGoToGateways() {
+            el('go-gateway-list').innerHTML = gatewaysData.map(gw => `
+                <div class="glass-card list-card" style="cursor:pointer" onclick="window.open('https://${new URL(gw.apiUrl).hostname}', '_blank')">
+                    <div class="list-card-left"><span class="material-icons-round">language</span>
+                        <div class="list-details"><h4>${gw.gatewayName}</h4><p>${new URL(gw.apiUrl).hostname}</p></div>
+                    </div><span class="material-icons-round text-primary">open_in_new</span>
+                </div>
+            `).join('') || '<p class="text-center mt-20" style="color:var(--text-sec)">No Gateways Found</p>';
+        }
+
+        function populateGatewaysDropdown() {
+            el('send-gateway').innerHTML = gatewaysData.length ? gatewaysData.map(gw => `<option value="${gw.id}">${gw.accountName} - ${gw.gatewayName}</option>`).join('') : '<option value="">No Gateways Available</option>';
+        }
+
+        let pendingTx = {};
+        el('send-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if(!el('send-gateway').value) return alert("Please add a gateway first!");
+            const gw = gatewaysData.find(g => g.id === el('send-gateway').value);
+            pendingTx = { gateway: gw, receiver: el('send-receiver').value, amount: el('send-amount').value, comment: el('send-comment').value || 'Payment' };
+            el('conf-gateway').innerText = gw.gatewayName; el('conf-account').innerText = gw.accountName;
+            el('conf-receiver').innerText = pendingTx.receiver; el('conf-amount').innerText = '$' + pendingTx.amount; el('conf-comment').innerText = pendingTx.comment;
+            resetSlider(); navigate('confirm');
+        });
+
+        const sliderThumb = document.querySelector('.slider-thumb');
+        const sliderTrack = document.querySelector('.slider-track');
+        let isDragging = false;
+
+        sliderThumb.addEventListener('pointerdown', () => { isDragging = true; sliderThumb.style.transition = 'none'; });
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            let x = e.clientX - sliderTrack.getBoundingClientRect().left - 26;
+            x = Math.max(0, Math.min(x, sliderTrack.getBoundingClientRect().width - 52));
+            sliderThumb.style.left = `${x + 4}px`;
+            if (x >= sliderTrack.getBoundingClientRect().width - 60) { isDragging = false; processTransaction(); }
+        });
+        window.addEventListener('pointerup', () => { if (isDragging) { isDragging = false; resetSlider(); } });
+        function resetSlider() { sliderThumb.style.transition = 'left 0.3s'; sliderThumb.style.left = '4px'; }
+
+        function processTransaction() {
+            navigate('status');
+            el('processing-state').classList.remove('hidden'); el('result-state').classList.add('hidden');
+            setTimeout(() => {
+                const isSuccess = Math.random() > 0.2; 
+                const txRecord = {
+                    uid: currentUser.uid, transactionId: 'TXN' + Date.now(), gatewayName: pendingTx.gateway.gatewayName, 
+                    accountName: pendingTx.gateway.accountName, receiverNumber: pendingTx.receiver, amount: pendingTx.amount, 
+                    comment: pendingTx.comment, status: isSuccess ? 'Success' : 'Failed', response: isSuccess ? 'OK' : 'API Error',
+                    date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString()
+                };
+                push(ref(db, 'transactions'), txRecord);
+                showResult(txRecord, isSuccess);
+            }, 2000);
+        }
+
+        function showResult(tx, isSuccess) {
+            el('processing-state').classList.add('hidden'); el('result-state').classList.remove('hidden');
+            const icon = el('result-icon'); const title = el('result-title');
+            icon.innerText = isSuccess ? 'check_circle' : 'error'; icon.className = `material-icons-round status-icon ${isSuccess ? 'status-success-anim' : 'status-fail-anim'}`;
+            title.innerText = isSuccess ? 'Payment Successful' : 'Payment Failed'; title.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+            el('result-receipt').innerHTML = `
+                <div class="receipt-row"><span>TXN ID:</span> <strong>${tx.transactionId}</strong></div>
+                <div class="receipt-row"><span>Date:</span> <strong>${tx.date} ${tx.time}</strong></div>
+                <div class="receipt-row"><span>Gateway:</span> <strong>${tx.gatewayName}</strong></div>
+                <div class="receipt-row"><span>Receiver:</span> <strong>${tx.receiverNumber}</strong></div>
+                <div class="receipt-row"><span>Amount:</span> <strong class="highlight">$${tx.amount}</strong></div>
+                <div class="receipt-row"><span>Status:</span> <strong class="${isSuccess ? 'status-success' : 'status-failed'}">${tx.status}</strong></div>
+            `;
+        }
+
+        function loadHistory() {
+            get(query(ref(db, 'transactions'), orderByChild('uid'), equalTo(currentUser.uid))).then(snapshot => {
+                const txs = []; snapshot.forEach(child => txs.push(child.val())); txs.reverse();
+                el('history-list').innerHTML = txs.map(tx => `
+                    <div class="glass-card list-card">
+                        <div class="list-card-left">
+                            <span class="material-icons-round ${tx.status==='Success' ? 'status-success' : 'status-failed'}">${tx.status==='Success' ? 'arrow_upward' : 'close'}</span>
+                            <div class="list-details"><h4>${tx.receiverNumber}</h4><p>${tx.gatewayName} • ${tx.date}</p></div>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="highlight">$${tx.amount}</h4><small class="${tx.status==='Success' ? 'status-success' : 'status-failed'}">${tx.status}</small>
+                        </div>
+                    </div>
+                `).join('') || '<p class="text-center mt-20" style="color:var(--text-sec)">No Transactions Found</p>';
+            });
+        }
+    </script>
 </body>
 </html>
